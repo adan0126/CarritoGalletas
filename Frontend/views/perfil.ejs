@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perfil — Steam Style</title>
+  <link rel="stylesheet" href="../CSS/styles.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <span class="logo-mark">VAPOR</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="card profile-card">
+      <div class="profile-header">
+        <div class="profile-info">
+          <h1 class="card-title">Gerardo</h1>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <p><strong>Correo:</strong> gerardo@example.com</p>
+      </div>
+
+      <div class="profile-actions">
+        <a href="./index.ejs" class="btn">Carrito</a>
+        <a href="./productos.html" class="btn">Regresar al catálogo</a>
+        <form action="./logout.html" method="post" style="display:inline;">
+          <button type="submit" class="btn btn-primary">Cerrar sesión</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="muted">© 2025 GRAM — Vapor</p>
+  </footer>
+  <script src="../JS/perfil.js"></script>
+</body>
+</html>

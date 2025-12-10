@@ -1,1 +1,58 @@
-<!-- Aquí se vera el carrito de galletas -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Carrito — Vapor</title>
+  <link rel="stylesheet" href="../CSS/styles.css" />
+</head>
+<body>
+
+ 
+  <header class="header">
+    <div class="logo">
+      <span class="logo-mark">VAPOR</span>
+    </div>
+    <a href="perfil.html" class="btn profile-btn">Perfil</a>
+  </header>
+
+  <main class="main">
+    <section class="card">
+      <h1 class="card-title">Tu carrito de compras</h1>
+      <p class="card-subtitle">Revisa los videojuegos añadidos antes de pagar</p>
+
+      <div class="product-list">
+        <div class="product-item">
+          <img src="images/elden-ring.jpg" alt="Elden Ring" class="product-img" />
+          <div class="product-info">
+            <h2 class="product-name">Elden Ring</h2>
+            <p class="product-price">$59.99</p>
+          </div>
+        </div>
+
+        <div class="product-item">
+          <img src="images/hades.jpg" alt="Hades" class="product-img" />
+          <div class="product-info">
+            <h2 class="product-name">Hades</h2>
+            <p class="product-price">$24.99</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-total">
+        <p><strong>Total:</strong> $84.98</p>
+      </div>
+
+      <div class="form-footer">
+        <button class="btn btn-primary">Finalizar compra</button>
+        <a href="productos.html" class="btn">Regresar al catálogo</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="muted">© 2025 GRAM — Vapor</p>
+  </footer>
+  <script src="../JS/carrito.js"></script>
+</body>
+</html>

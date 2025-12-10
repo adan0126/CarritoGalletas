@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Iniciar sesión</title>
+  <link rel="stylesheet" href="../CSS/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <span class="logo-mark">VAPOR</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="card">
+      <h1 class="card-title">Iniciar sesión</h1>
+      <p class="card-subtitle">Accede a tu cuenta</p>
+
+      <form class="form" action="/login" method="post" novalidate>
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="tucorreo@ejemplo.com"
+            autocomplete="email"
+            required
+            inputmode="email"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Tu contraseña"
+            autocomplete="current-password"
+            required
+            minlength="8"
+          />
+        </div>
+
+        <button class="btn btn-primary" type="submit">Entrar</button>
+
+        <div class="form-footer">
+          <span class="muted">¿No tienes cuenta?</span>
+          <a class="link" href="./registro.html">Regístrate</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="muted">© 2025 GRAM — Vapor</p>
+  </footer>
+  <script src="../JS/login.js"></script>
+</body>
+</html>

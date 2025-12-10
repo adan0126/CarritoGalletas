@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registro</title>
+  <link rel="stylesheet" href="../CSS/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <span class="logo-mark">VAPOR</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="card">
+      <h1 class="card-title">Crear cuenta</h1>
+      <p class="card-subtitle">Regístrate para empezar</p>
+
+      <form class="form" action="/register" method="post" novalidate>
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="tucorreo@ejemplo.com"
+            autocomplete="email"
+            required
+            inputmode="email"
+          />
+          <small class="hint">Usa un correo válido que controles.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Tu contraseña"
+            autocomplete="new-password"
+            required
+            minlength="8"
+          />
+          <small class="hint">Mínimo 8 caracteres. Evita datos fáciles de adivinar.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm">Confirmación de contraseña</label>
+          <input
+            id="confirm"
+            name="confirm"
+            type="password"
+            placeholder="Repite la contraseña"
+            autocomplete="new-password"
+            required
+            minlength="8"
+          />
+        </div>
+
+        <button class="btn btn-primary" type="submit">Crear cuenta</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="muted">© 2025 GRAM — Vapor</p>
+  </footer>
+  <script src="../JS/registro.js"></script>
+</body>
+</html>
