@@ -2,9 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const footerLinks = document.querySelector(".form-footer");
   const subtitle = document.querySelector(".card-subtitle");
 
-  const usuario = localStorage.getItem("usuario");
+  const usuarioData = localStorage.getItem("usuario");
 
-  if (usuario) {
+  if (usuarioData) {
+    const usuario = JSON.parse(usuarioData);
     footerLinks.innerHTML = "";
 
     const perfilBtn = document.createElement("a");
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     footerLinks.appendChild(perfilBtn);
     footerLinks.appendChild(logoutBtn);
 
-    subtitle.textContent = `Bienvenido de nuevo, ${usuario}. ¡Explora tu catálogo personalizado!`;
+    subtitle.textContent = `Bienvenido de nuevo, ${usuario.nombre || usuario.email}. ¡Explora tu catálogo personalizado!`;
   } else {
     footerLinks.querySelectorAll("a").forEach((btn) => {
       btn.style.opacity = 0;

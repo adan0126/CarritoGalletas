@@ -138,8 +138,8 @@ app.post('/login', async (req, res) => {
 			return res.status(401).json({ message: 'Credenciales inválidas.' });
 		}
 
-		// En un escenario real se devolvería un JWT/sesión; aquí solo regresamos los datos básicos.
-		return res.json({ user: { id: user.id, email: user.usr_email } });
+		// Devolver solo confirmación sin exponer datos
+		return res.json({ id: user.id, email: user.usr_email });
 	} catch (err) {
 		console.error('Fallo inesperado en /login:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
@@ -150,6 +150,26 @@ app.post('/login', async (req, res) => {
 app.post('/logout', (req, res) => {
 	// Aquí se podrían limpiar sesiones o tokens; el frontend ya borra almacenamiento local.
 	return res.json({ message: 'Sesión finalizada.' });
+});
+
+// Endpoint: obtener productos
+app.get('/api/products', async (req, res) => {
+	try {
+		const { data: products, error } = await supabase
+			.from('products')
+			.select('*')
+			.order('id', { ascending: true });
+
+		if (error) {
+			console.error('Error obteniendo productos:', error);
+			return res.status(500).json({ message: 'No se pudieron obtener los productos.' });
+		}
+
+		return res.json({ products });
+	} catch (err) {
+		console.error('Fallo inesperado en /api/products:', err);
+		return res.status(500).json({ message: 'Error interno del servidor.' });
+	}
 });
 
 // Inicio del servidor

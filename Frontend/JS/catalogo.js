@@ -1,5 +1,6 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const productos = document.querySelectorAll(".product-item");
+document.addEventListener("DOMContentLoaded", async () => {
+  // Cargar productos desde el servidor
+  await cargarProductos();
 
   function obtenerCarrito() {
     return JSON.parse(localStorage.getItem("carrito")) || [];
@@ -22,15 +23,55 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "carrito.html";
   }
 
-  productos.forEach((item) => {
-    const nombre = item.querySelector(".product-name").textContent;
-    const precio = item.querySelector(".product-price").textContent;
-    const img = item.querySelector(".product-img").getAttribute("src");
+  async function cargarProductos() {
+    try {
+      const response = await fetch('/api/products');
+      const data = await response.json();
 
-    const btnComprar = item.querySelector(".btn.btn-primary");
-    const btnCarrito = item.querySelector(".btn:not(.btn-primary)");
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al cargar productos');
+      }
 
-    btnComprar.addEventListener("click", () => comprarProducto(nombre, precio, img));
-    btnCarrito.addEventListener("click", () => agregarAlCarrito(nombre, precio, img));
-  });
+      const productList = document.querySelector(".product-list");
+      if (!productList) return;
+
+      // Limpiar productos estáticos
+      productList.innerHTML = '';
+
+      // Crear productos dinámicamente
+      data.products.forEach(product => {
+        const productItem = document.createElement("div");
+        productItem.className = "product-item";
+
+        productItem.innerHTML = `
+          <img src="${product.prod_img}" alt="${product.prod_name}" class="product-img" />
+          <div class="product-info">
+            <h2 class="product-name">${product.prod_name}</h2>
+            <p class="product-price">$${product.prod_price.toFixed(2)}</p>
+            <p class="product-genres">${product.prod_genres.join(', ')}</p>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-primary">Comprar</button>
+            <button class="btn">Agregar al carrito</button>
+          </div>
+        `;
+
+        productList.appendChild(productItem);
+
+        // Agregar event listeners a los botones
+        const btnComprar = productItem.querySelector(".btn.btn-primary");
+        const btnCarrito = productItem.querySelector(".btn:not(.btn-primary)");
+
+        btnComprar.addEventListener("click", () =>
+          comprarProducto(product.prod_name, `$${product.prod_price.toFixed(2)}`, product.prod_img)
+        );
+        btnCarrito.addEventListener("click", () =>
+          agregarAlCarrito(product.prod_name, `$${product.prod_price.toFixed(2)}`, product.prod_img)
+        );
+      });
+    } catch (error) {
+      console.error('Error cargando productos:', error);
+      alert('No se pudieron cargar los productos. Por favor, intenta más tarde.');
+    }
+  }
 });

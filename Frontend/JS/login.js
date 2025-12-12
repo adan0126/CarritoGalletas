@@ -63,7 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (response.ok) {
-        window.location.href = "perfil.html";
+        const data = await response.json();
+        // Guardar datos del usuario en localStorage
+        localStorage.setItem("usuario", JSON.stringify({
+          id: data.id,
+          email: data.email,
+          nombre: data.email.split("@")[0] // Usar la parte del email como nombre
+        }));
+        window.location.href = "productos.html";
       } else {
         alert("Credenciales inválidas. Intenta de nuevo.");
       }
