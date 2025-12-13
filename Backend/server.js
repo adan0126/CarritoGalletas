@@ -47,6 +47,7 @@ app.get(['/perfil', '/perfil.html'], (req, res) => res.render('perfil'));
 app.get(['/productos', '/productos.html', '/catalogo', '/catalogo.html'], (req, res) => res.render('productos'));
 app.get(['/carrito', '/carrito.html', '/index', '/index.html'], (req, res) => res.render('index'));
 app.get(['/filtro', '/filtro.html'], (req, res) => res.render('filtro'));
+app.get(['/editarP', '/editarP.html'], (req, res) => res.render('editarP'));
 app.get(['/logout', '/logout.html'], (req, res) => res.sendFile(path.join(__dirname, '../Frontend/views/logout.html')));
 
 // Endpoint: registro de usuarios

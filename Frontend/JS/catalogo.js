@@ -14,13 +14,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const carrito = obtenerCarrito();
     carrito.push({ nombre, precio, img });
     guardarCarrito(carrito);
-    alert(`${nombre} fue agregado al carrito `);
+    // SIN alert aquí
   }
 
   function comprarProducto(nombre, precio, img) {
-    alert(`Compraste ${nombre} por ${precio} `);
     agregarAlCarrito(nombre, precio, img);
-    window.location.href = "carrito.html";
+    alert(`Añadiste al carrito ${nombre} por ${precio} `); // SOLO UNA alerta
+    window.location.href = "/carrito";
   }
 
   async function cargarProductos() {
@@ -35,14 +35,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       const productList = document.querySelector(".product-list");
       if (!productList) return;
 
-      // Limpiar productos estáticos
       productList.innerHTML = '';
 
-      // Crear productos dinámicamente
       data.products.forEach(product => {
         const productItem = document.createElement("div");
         productItem.className = "product-item";
 
+        // Corregí "carrioto" a "carrito"
         productItem.innerHTML = `
           <img src="${product.prod_img}" alt="${product.prod_name}" class="product-img" />
           <div class="product-info">
@@ -51,22 +50,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             <p class="product-genres">${product.prod_genres.join(', ')}</p>
           </div>
           <div class="product-actions">
-            <button class="btn btn-primary">Comprar</button>
-            <button class="btn">Agregar al carrito</button>
+            <button class="btn btn-primary">Añadir al carrito</button>
           </div>
         `;
 
         productList.appendChild(productItem);
 
-        // Agregar event listeners a los botones
         const btnComprar = productItem.querySelector(".btn.btn-primary");
-        const btnCarrito = productItem.querySelector(".btn:not(.btn-primary)");
-
+        
         btnComprar.addEventListener("click", () =>
           comprarProducto(product.prod_name, `$${product.prod_price.toFixed(2)}`, product.prod_img)
-        );
-        btnCarrito.addEventListener("click", () =>
-          agregarAlCarrito(product.prod_name, `$${product.prod_price.toFixed(2)}`, product.prod_img)
         );
       });
     } catch (error) {
