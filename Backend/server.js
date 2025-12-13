@@ -10,7 +10,6 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-//Adán aquí debe ir true o false?      ^^^^^ -------> NS no uso supa :'c
 
 // Static assets (CSS/JS/imagenes)
 app.use(express.static(path.join(__dirname, '../Frontend')));
@@ -38,7 +37,6 @@ function hashPassword(password) {
 }
 */
 
-
 // Rutas de páginas (renderizan los .ejs que vive en Frontend/views)
 app.get(['/', '/main', '/main.html'], (req, res) => res.sendFile(path.join(__dirname, '../Frontend/views/main.html')));
 app.get(['/login', '/login.html'], (req, res) => res.render('login'));
@@ -47,7 +45,9 @@ app.get(['/perfil', '/perfil.html'], (req, res) => res.render('perfil'));
 app.get(['/productos', '/productos.html', '/catalogo', '/catalogo.html'], (req, res) => res.render('productos'));
 app.get(['/carrito', '/carrito.html', '/index', '/index.html'], (req, res) => res.render('index'));
 app.get(['/filtro', '/filtro.html'], (req, res) => res.render('filtro'));
-app.get(['/editarP', '/editarP.html'], (req, res) => res.render('editarP'));
+app.get(['/editar-perfil', '/editarP', '/editarP.html'], (req, res) => {
+  res.render('editarP');
+});
 app.get(['/logout', '/logout.html'], (req, res) => res.sendFile(path.join(__dirname, '../Frontend/views/logout.html')));
 
 // Endpoint: registro de usuarios
@@ -151,6 +151,62 @@ app.post('/login', async (req, res) => {
 app.post('/logout', (req, res) => {
 	// Aquí se podrían limpiar sesiones o tokens; el frontend ya borra almacenamiento local.
 	return res.json({ message: 'Sesión finalizada.' });
+});
+
+// Endpoint: cambiar contraseña
+app.put('/api/change-password', async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+
+  // Validaciones básicas
+  if (!email || !currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Todos los campos son requeridos.' });
+  }
+
+  if (newPassword.length < 8 || newPassword.length > 10) {
+    return res.status(400).json({ message: 'La nueva contraseña debe tener 8-10 caracteres.' });
+  }
+
+  if (currentPassword === newPassword) {
+    return res.status(400).json({ message: 'La nueva contraseña no puede ser igual a la actual.' });
+  }
+
+  try {
+    // 1. Verificar usuario existe
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id, usr_email, usr_password')
+      .eq('usr_email', email)
+      .limit(1);
+
+    if (userError || !user || user.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    // 2. Verificar contraseña actual (sin hash temporalmente)
+    if (user[0].usr_password !== currentPassword) {
+      return res.status(401).json({ message: 'Contraseña actual incorrecta.' });
+    }
+
+    // 3. Actualizar contraseña (sin hash temporalmente)
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ usr_password: newPassword })
+      .eq('id', user[0].id);
+
+    if (updateError) {
+      console.error('Error actualizando contraseña:', updateError);
+      return res.status(500).json({ message: 'No se pudo actualizar la contraseña.' });
+    }
+
+    return res.json({ 
+      success: true, 
+      message: 'Contraseña actualizada correctamente.' 
+    });
+
+  } catch (err) {
+    console.error('Error en cambio de contraseña:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
 });
 
 // Endpoint: obtener productos
