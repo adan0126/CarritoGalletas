@@ -1,4 +1,4 @@
-// jeje
+// FALTAN LOS IMPORTES NECESARIOS
 
 // Endpoint: registro de usuarios
 app.post('/register', async (req, res) => {

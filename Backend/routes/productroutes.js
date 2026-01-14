@@ -5,6 +5,9 @@ import * as productController from '../controllers/productcontroller.js';
 
 const router = Router();
 
+// Ruta para crear un nuevo producto
+router.post('/products', productController.create);
+
 app.get(['/', '/main', '/main.html'], (req, res) => res.sendFile(path.join(__dirname, '../Frontend/views/main.html')));
 app.get(['/login', '/login.html'], (req, res) => res.render('login'));
 app.get(['/registro', '/registro.html', '/register', '/register.html'], (req, res) => res.render('registro'));
