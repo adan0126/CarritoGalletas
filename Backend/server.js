@@ -2,7 +2,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const express = require('express');
 const path = require('path');
 const { randomBytes, scryptSync, timingSafeEqual } = require('crypto');
-const supabase = require('./dbconfig');
+const supabase = require('./config/dbconfig');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
