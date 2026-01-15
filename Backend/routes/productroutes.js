@@ -33,7 +33,7 @@ router.get(['/login', '/login.html'], (req, res) => res.render('login'));
 router.get(['/registro', '/registro.html', '/register', '/register.html'], (req, res) => res.render('registro'));
 router.get(['/perfil', '/perfil.html'], (req, res) => res.render('perfil'));
 router.get(['/productos', '/productos.html', '/catalogo', '/catalogo.html'], (req, res) => res.render('productos'));
-router.get(['/carrito', '/carrito.html', '/index', '/index.html'], (req, res) => res.render('index'));
+router.get(['/carrito', '/carrito.html', '/index', '/index.html'], (req, res) => res.render('carrito'));
 router.get(['/filtro', '/filtro.html'], (req, res) => res.render('filtro'));
 router.get(['/logout', '/logout.html'], (req, res) => {
 	res.sendFile(path.join(__dirname, '../../Frontend/views/logout.html'));

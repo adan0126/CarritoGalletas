@@ -134,12 +134,12 @@ export const create = async (req, res) => {
 	try {
 		const { data: created, error: insertError } = await supabase
 			.from('products')
-			.insert({ 
-				categoryid: categoryid || null, 
-				name, 
-				price, 
+			.insert({
+				categoryid: categoryid || null,
+				name,
+				price,
 				stock: stock || 0,
-				img: img || null 
+				img: img || null
 			})
 			.select()
 			.single();
@@ -182,8 +182,8 @@ export const addToCart = async (req, res) => {
 		const { data: existing, error: existErr } = await supabase
 			.from('cart')
 			.select('*')
-			.eq('user_id', userId)
-			.eq('product_id', productId)
+			.eq('usr_id', userId)
+			.eq('game_id', productId)
 			.limit(1);
 
 		if (existErr) {
@@ -191,26 +191,27 @@ export const addToCart = async (req, res) => {
 			return res.status(500).json({ message: 'Error comprobando carrito.' });
 		}
 
+
 		if (existing && existing.length > 0) {
-			const newQty = (existing[0].quantity || 0) + Number(quantity);
-			const { data: updated, error: updateErr } = await supabase
-				.from('cart')
-				.update({ quantity: newQty })
-				.eq('id', existing[0].id)
-				.select()
-				.single();
-
-			if (updateErr) {
-				console.error('Error actualizando carrito:', updateErr);
-				return res.status(500).json({ message: 'No se pudo actualizar el carrito.' });
-			}
-
-			return res.json({ item: updated });
+			// Ya existe la fila, rechazar
+			return res.status(409).json({ message: 'Este juego ya está en el carrito.' });
 		}
+
+		// Generar id manualmente
+		const { data: maxIdData, error: maxErr } = await supabase
+			.from('cart')
+			.select('id')
+			.order('id', { ascending: false })
+			.limit(1);
+		if (maxErr) {
+			console.error('Error obteniendo ID máximo de cart:', maxErr);
+			return res.status(500).json({ message: 'No se pudo generar el ID del carrito.' });
+		}
+		const newId = maxIdData && maxIdData.length > 0 ? (maxIdData[0].id + 1) : 1;
 
 		const { data: inserted, error: insertErr } = await supabase
 			.from('cart')
-			.insert({ user_id: userId, product_id: productId, quantity: Number(quantity) })
+			.insert({ id: newId, usr_id: userId, game_id: productId })
 			.select()
 			.single();
 
@@ -235,7 +236,7 @@ export const getCart = async (req, res) => {
 		const { data: items, error: itemsErr } = await supabase
 			.from('cart')
 			.select('*')
-			.eq('user_id', userId)
+			.eq('usr_id', userId)
 			.order('id', { ascending: true });
 
 		if (itemsErr) {
@@ -243,12 +244,12 @@ export const getCart = async (req, res) => {
 			return res.status(500).json({ message: 'No se pudo obtener el carrito.' });
 		}
 
-		const productIds = items.map(i => i.product_id);
+		const productIds = items.map(i => i.game_id);
 		let productsMap = {};
 		if (productIds.length > 0) {
 			const { data: products } = await supabase
 				.from('products')
-				.select('id, name, price, img')
+				.select('id, prod_name, prod_price, prod_img, prod_stock')
 				.in('id', productIds);
 
 			productsMap = (products || []).reduce((acc, p) => {
@@ -259,7 +260,7 @@ export const getCart = async (req, res) => {
 
 		const detailed = items.map(it => ({
 			...it,
-			product: productsMap[it.product_id] || null
+			product: productsMap[it.game_id] || null
 		}));
 
 		return res.json({ items: detailed });
@@ -278,8 +279,8 @@ export const removeFromCart = async (req, res) => {
 		const { error } = await supabase
 			.from('cart')
 			.delete()
-			.eq('user_id', userId)
-			.eq('product_id', productId);
+			.eq('usr_id', userId)
+			.eq('game_id', productId);
 
 		if (error) {
 			console.error('Error eliminando item del carrito:', error);
@@ -302,7 +303,7 @@ export const clearCart = async (req, res) => {
 		const { error } = await supabase
 			.from('cart')
 			.delete()
-			.eq('user_id', userId);
+			.eq('usr_id', userId);
 
 		if (error) {
 			console.error('Error vaciando carrito:', error);
@@ -314,4 +315,65 @@ export const clearCart = async (req, res) => {
 		console.error('Fallo inesperado en /api/cart/clear:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
+};
+
+// Actualizar cantidad de un item del carrito (si cantidad <= 0 elimina)
+export const updateCartQuantity = async (req, res) => {
+	const { userId, productId, quantity } = req.body;
+	if (!userId || !productId || typeof quantity === 'undefined') {
+		return res.status(400).json({ message: 'userId, productId y quantity son requeridos.' });
+	}
+
+	try {
+		if (Number(quantity) <= 0) {
+			const { error } = await supabase
+				.from('cart')
+				.delete()
+				.eq('usr_id', userId)
+				.eq('game_id', productId);
+			if (error) {
+				console.error('Error eliminando item por cantidad <= 0:', error);
+				return res.status(500).json({ message: 'No se pudo actualizar el carrito.' });
+			}
+			return res.json({ message: 'Item eliminado por cantidad 0.' });
+		}
+
+    // Validar que la cantidad no exceda el stock
+    const { data: product, error: prodErr } = await supabase
+      .from('products')
+      .select('prod_stock')
+      .eq('id', productId)
+      .limit(1);
+
+    if (prodErr || !product || product.length === 0) {
+      console.error('Error verificando stock del producto:', prodErr);
+      return res.status(404).json({ message: 'Producto no encontrado.' });
+    }
+
+    const stock = product[0].prod_stock;
+    if (Number(quantity) > stock) {
+      return res.status(400).json({
+        message: `Solo hay ${stock} unidades disponibles.`,
+        maxStock: stock
+      });
+    }
+
+    const { data: updated, error: updErr } = await supabase
+      .from('cart')
+      .update({ cart_quantity: Number(quantity) })
+      .eq('usr_id', userId)
+      .eq('game_id', productId)
+      .select()
+      .single();
+
+    if (updErr) {
+      console.error('Error actualizando cantidad del carrito:', updErr);
+      return res.status(500).json({ message: 'No se pudo actualizar la cantidad.' });
+    }
+
+    return res.json({ item: updated });
+  } catch (err) {
+    console.error('Fallo inesperado en /api/cart/update:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
 };
