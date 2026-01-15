@@ -1,7 +1,7 @@
-// FALTAN LOS IMPORTES NECESARIOS
+import supabase from '../config/dbconfig.js';
 
 // Endpoint: registro de usuarios
-app.post('/register', async (req, res) => {
+export const register = async (req, res) => {
 	const { email, password } = req.body;
 
 	if (!email || !password) {
@@ -61,10 +61,10 @@ app.post('/register', async (req, res) => {
 		console.error('Fallo inesperado en /register:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
-});
+};
 
 // Endpoint: login
-app.post('/login', async (req, res) => {
+export const login = async (req, res) => {
 	const { email, password } = req.body;
 
 	if (!email || !password) {
@@ -95,16 +95,16 @@ app.post('/login', async (req, res) => {
 		console.error('Fallo inesperado en /login:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
-});
+};
 
 // Endpoint: logout (placeholder para simetría con el frontend)
-app.post('/logout', (req, res) => {
+export const logout = (req, res) => {
 	// Aquí se podrían limpiar sesiones o tokens; el frontend ya borra almacenamiento local.
 	return res.json({ message: 'Sesión finalizada.' });
-});
+};
 
 // Endpoint: obtener productos
-app.get('/api/products', async (req, res) => {
+export const getProducts = async (req, res) => {
 	try {
 		const { data: products, error } = await supabase
 			.from('products')
@@ -121,12 +121,45 @@ app.get('/api/products', async (req, res) => {
 		console.error('Fallo inesperado en /api/products:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
-});
+};
+
+// Endpoint: crear un nuevo producto
+export const create = async (req, res) => {
+	const { categoryid, name, price, stock, img } = req.body;
+
+	if (!name || !price) {
+		return res.status(400).json({ message: 'El nombre y precio del producto son requeridos.' });
+	}
+
+	try {
+		const { data: created, error: insertError } = await supabase
+			.from('products')
+			.insert({ 
+				categoryid: categoryid || null, 
+				name, 
+				price, 
+				stock: stock || 0,
+				img: img || null 
+			})
+			.select()
+			.single();
+
+		if (insertError) {
+			console.error('Error creando producto:', insertError);
+			return res.status(500).json({ message: 'No se pudo crear el producto.' });
+		}
+
+		return res.status(201).json({ product: created });
+	} catch (err) {
+		console.error('Fallo inesperado en /products:', err);
+		return res.status(500).json({ message: 'Error interno del servidor.' });
+	}
+};
 
 // --- Endpoints para carrito ---
 
 // Añade un producto al carrito
-app.post('/api/cart/add', async (req, res) => {
+export const addToCart = async (req, res) => {
 	const { userId, productId, quantity = 1 } = req.body;
 	if (!userId || !productId) return res.status(400).json({ message: 'userId y productId son requeridos.' });
 
@@ -191,10 +224,10 @@ app.post('/api/cart/add', async (req, res) => {
 		console.error('Fallo inesperado en /api/cart/add:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
-});
+};
 
 // Obtener los items del carrito para un usuario
-app.get('/api/cart', async (req, res) => {
+export const getCart = async (req, res) => {
 	const userId = req.query.userId || req.body.userId;
 	if (!userId) return res.status(400).json({ message: 'userId es requerido.' });
 
@@ -234,10 +267,10 @@ app.get('/api/cart', async (req, res) => {
 		console.error('Fallo inesperado en /api/cart:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
-});
+};
 
 // Eliminar un item del carrito (por usuario + productId)
-app.delete('/api/cart/remove', async (req, res) => {
+export const removeFromCart = async (req, res) => {
 	const { userId, productId } = req.body;
 	if (!userId || !productId) return res.status(400).json({ message: 'userId y productId son requeridos.' });
 
@@ -258,10 +291,10 @@ app.delete('/api/cart/remove', async (req, res) => {
 		console.error('Fallo inesperado en /api/cart/remove:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
-});
+};
 
 // Vaciar carrito del usuario (Cuando hace la acción de "Comprar")
-app.post('/api/cart/clear', async (req, res) => {
+export const clearCart = async (req, res) => {
 	const { userId } = req.body;
 	if (!userId) return res.status(400).json({ message: 'userId es requerido.' });
 
@@ -281,4 +314,4 @@ app.post('/api/cart/clear', async (req, res) => {
 		console.error('Fallo inesperado en /api/cart/clear:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
-});
+};
