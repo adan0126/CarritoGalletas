@@ -128,19 +128,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  finalizarBtn.addEventListener("click", async () => {
+  finalizarBtn.addEventListener("click", () => {
     if (!usuario || !usuario.id) return;
-    try {
-      await fetch('/api/cart/clear', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: usuario.id })
-      });
-    } catch (e) {
-      console.error('Error vaciando carrito:', e);
-    }
-    productList.innerHTML = "";
-    toggleEmptyState();
+
+    const checkoutItems = [];
+    document.querySelectorAll('.product-item').forEach(item => {
+      const gameId = item.dataset.gameId;
+      const qtyEl = item.querySelector('.qty-input');
+      const qty = qtyEl ? Math.max(1, parseInt(qtyEl.value) || 1) : 1;
+      const price = parseFloat(item.dataset.price || '0');
+      const name = item.querySelector('.product-name')?.textContent || 'Producto';
+      const img = item.querySelector('.product-img')?.getAttribute('src') || '';
+      if (gameId) {
+        checkoutItems.push({ gameId, quantity: qty, price, name, img });
+      }
+    });
+
+    localStorage.setItem('checkoutItems', JSON.stringify(checkoutItems));
+    window.location.href = 'metodoPago.html';
   });
 
   cargarCarrito();

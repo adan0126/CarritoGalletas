@@ -45,11 +45,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  async function comprarProducto(product) {
-    await agregarAlCarrito(product);
-    window.location.href = 'carrito.html';
-  }
-
   async function cargarProductos() {
     try {
       const response = await fetch('/api/products');
@@ -72,25 +67,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         productItem.innerHTML = `
           <img src="${product.prod_img}" alt="${product.prod_name}" class="product-img" />
-          <div class="product-info">
-            <h2 class="product-name">${product.prod_name}</h2>
-            <p class="product-price">$${product.prod_price.toFixed(2)}</p>
-            <p class="product-genres">${product.prod_genres.join(', ')}</p>
-            <p class="product-stock">Stock: ${product.prod_stock}</p>
-          </div>
-          <div class="product-actions">
-            <button class="btn btn-primary">Comprar</button>
-            <button class="btn">Agregar al carrito</button>
+          <div class="product-body">
+            <div class="product-info">
+              <h2 class="product-name">${product.prod_name}</h2>
+              <p class="product-price">$${product.prod_price.toFixed(2)}</p>
+              <p class="product-description">${product.prod_description || 'Sin descripción disponible.'}</p>
+              <p class="product-genres">${product.prod_genres.join(', ')}</p>
+              <p class="product-stock">Stock: ${product.prod_stock}</p>
+            </div>
+            <div class="product-actions">
+              <button class="btn btn-primary">Agregar al carrito</button>
+            </div>
           </div>
         `;
 
         productList.appendChild(productItem);
 
-        // Agregar event listeners a los botones
-        const btnComprar = productItem.querySelector(".btn.btn-primary");
-        const btnCarrito = productItem.querySelector(".btn:not(.btn-primary)");
-
-        btnComprar.addEventListener("click", () => comprarProducto(product));
+        // Agregar event listener al botón
+        const btnCarrito = productItem.querySelector(".btn.btn-primary");
         btnCarrito.addEventListener("click", () => agregarAlCarrito(product));
       });
     } catch (error) {

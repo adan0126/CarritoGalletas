@@ -377,3 +377,125 @@ export const updateCartQuantity = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor.' });
   }
 };
+
+// Pasar el carrito a la biblioteca del usuario
+export const checkoutLibrary = async (req, res) => {
+	const { userId, items } = req.body;
+	if (!userId || !Array.isArray(items) || items.length === 0) {
+		return res.status(400).json({ message: 'userId e items son requeridos.' });
+	}
+
+	try {
+		const gameIds = items.map(i => Number(i.gameId)).filter(Boolean);
+		const quantitiesMap = items.reduce((acc, it) => {
+			const gameId = Number(it.gameId);
+			const qty = Math.max(1, Number(it.quantity) || 1);
+			if (gameId) acc[gameId] = (acc[gameId] || 0) + qty;
+			return acc;
+		}, {});
+
+		if (gameIds.length === 0) {
+			return res.status(400).json({ message: 'No hay juegos para procesar.' });
+		}
+
+		// Validar y restar stock inmediatamente para evitar condiciones de carrera
+		for (const gameId of gameIds) {
+			const qty = quantitiesMap[gameId] || 1;
+
+			const { data: product, error: prodErr } = await supabase
+				.from('products')
+				.select('id, prod_stock')
+				.eq('id', gameId)
+				.single();
+
+			if (prodErr || !product) {
+				console.error('Error obteniendo producto:', prodErr);
+				return res.status(404).json({ message: `Producto ${gameId} no encontrado.` });
+			}
+
+			if (qty > product.prod_stock) {
+				return res.status(400).json({
+					message: `Stock insuficiente para el juego. Disponible: ${product.prod_stock}, solicitado: ${qty}`
+				});
+			}
+
+			const newStock = product.prod_stock - qty;
+			const { error: stockUpdErr } = await supabase
+				.from('products')
+				.update({ prod_stock: newStock })
+				.eq('id', gameId);
+
+			if (stockUpdErr) {
+				console.error('Error actualizando stock:', stockUpdErr);
+				return res.status(500).json({ message: 'No se pudo actualizar el stock.' });
+			}
+		}
+
+		const { data: existingLib, error: libErr } = await supabase
+			.from('library')
+			.select('id, game_id, lib_quantity')
+			.eq('usr_id', userId)
+			.in('game_id', gameIds);
+
+		if (libErr) {
+			console.error('Error consultando biblioteca:', libErr);
+			return res.status(500).json({ message: 'No se pudo verificar la biblioteca.' });
+		}
+
+		const { data: maxIdData, error: maxErr } = await supabase
+			.from('library')
+			.select('id')
+			.order('id', { ascending: false })
+			.limit(1);
+
+		if (maxErr) {
+			console.error('Error obteniendo ID máximo de biblioteca:', maxErr);
+			return res.status(500).json({ message: 'No se pudo generar el ID de la biblioteca.' });
+		}
+
+		let nextId = maxIdData && maxIdData.length > 0 ? maxIdData[0].id + 1 : 1;
+
+		for (const gameId of gameIds) {
+			const qty = quantitiesMap[gameId] || 1;
+			const existing = (existingLib || []).find(l => l.game_id === gameId);
+
+			if (existing) {
+				const { error: updErr } = await supabase
+					.from('library')
+					.update({ lib_quantity: Number(existing.lib_quantity || 0) + qty })
+					.eq('usr_id', userId)
+					.eq('game_id', gameId);
+
+				if (updErr) {
+					console.error('Error actualizando biblioteca:', updErr);
+					return res.status(500).json({ message: 'No se pudo actualizar la biblioteca.' });
+				}
+			} else {
+				const { error: insErr } = await supabase
+					.from('library')
+					.insert({ id: nextId, usr_id: userId, game_id: gameId, lib_quantity: qty });
+
+				if (insErr) {
+					console.error('Error insertando en biblioteca:', insErr);
+					return res.status(500).json({ message: 'No se pudo agregar a la biblioteca.' });
+				}
+				nextId += 1;
+			}
+		}
+
+		const { error: clearErr } = await supabase
+			.from('cart')
+			.delete()
+			.eq('usr_id', userId);
+
+		if (clearErr) {
+			console.error('Error limpiando carrito después del checkout:', clearErr);
+			return res.status(500).json({ message: 'Compra creada, pero no se pudo vaciar el carrito.' });
+		}
+
+		return res.json({ message: 'Compra completada. Juegos agregados a tu biblioteca.' });
+	} catch (err) {
+		console.error('Fallo inesperado en checkout:', err);
+		return res.status(500).json({ message: 'Error interno del servidor.' });
+	}
+};
