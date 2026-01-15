@@ -27,6 +27,17 @@
 
       <div class="product-list">
         <!-- Los productos se cargarán dinámicamente desde Supabase -->
+        <template id="product-template">
+          <div class="product-card">
+            <img src="" alt="" class="product-image" />
+            <h3 class="product-name"></h3>
+            <p class="product-price"></p>
+            <p class="product-stock">
+              Stock: <span class="stock-count"></span> piezas
+            </p>
+            <button class="btn btn-add-cart">Añadir al Carrito</button>
+          </div>
+        </template>
       </div>
     </section>
   </main>
