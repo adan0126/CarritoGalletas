@@ -143,7 +143,7 @@ async function handleAddGame(e) {
 
 		alert('Juego agregado exitosamente.');
 		document.getElementById('add-game-form').reset();
-		
+
 		try {
 			await loadGames();
 			switchTab('games');
