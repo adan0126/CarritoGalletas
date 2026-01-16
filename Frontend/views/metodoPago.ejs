@@ -10,7 +10,9 @@
 
   <header class="header">
     <div class="logo">
-      <span class="logo-mark">Vapor</span>
+      <a href="main.html" style="text-decoration: none;">
+        <span class="logo-mark">VAPOR</span>
+      </a>
     </div>
     <nav class="nav">
       <a href="perfil.html" class="btn">Perfil</a>
@@ -19,61 +21,50 @@
   </header>
 
   <main class="main">
-    <section class="card">
-      <h1 class="card-title">Métodos de Pago</h1>
-      <p class="card-subtitle">Selecciona tu método de pago preferido</p>
-
-      <div class="payment-methods">
-        <!-- Tarjeta de Crédito -->
-        <div class="payment-option">
-          <h3>Tarjeta de Crédito</h3>
-          <form id="credit-card-form">
-            <div class="form-group">
-              <label for="card-number">Número de Tarjeta</label>
-              <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" required />
-            </div>
-            <div class="form-group">
-              <label for="card-name">Nombre en la Tarjeta</label>
-              <input type="text" id="card-name" placeholder="Juan Pérez" required />
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="expiry">Vencimiento</label>
-                <input type="text" id="expiry" placeholder="MM/AA" maxlength="5" required />
-              </div>
-              <div class="form-group">
-                <label for="cvv">CVV</label>
-                <input type="text" id="cvv" placeholder="123" maxlength="4" required />
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary">Confirmar Tarjeta</button>
-          </form>
-        </div>
-
-        <!-- PayPal -->
-        <div class="payment-option">
-          <h3>PayPal</h3>
-          <p>Paga de forma segura con tu cuenta de PayPal</p>
-          <div class="form-group">
-            <label for="paypal-email">Correo de PayPal</label>
-            <input type="email" id="paypal-email" placeholder="tu@email.com" required />
-          </div>
-          <button class="btn btn-primary" onclick="processPayPal()">Pagar con PayPal</button>
-        </div>
-
-
+    <section class="card payment-card">
+      <div class="payment-header">
+        <h1 class="card-title">Método de Pago</h1>
+        <p class="card-subtitle">Revisa tu pedido y confirma con tu tarjeta.</p>
       </div>
 
-      <!-- Resumen del Pedido -->
-      <div class="order-summary">
-        <h2>Resumen del Pedido</h2>
-        <div id="order-items">
-          <!-- Los artículos se cargarán dinámicamente -->
+      <div class="payment-layout">
+        <div class="payment-panel">
+          <div class="payment-option">
+            <h3>Tarjeta</h3>
+            <p class="payment-hint">Aceptamos crédito y débito.</p>
+            <form id="credit-card-form">
+              <div class="form-group">
+                <label for="card-number">Número de Tarjeta</label>
+                <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" required />
+              </div>
+              <div class="form-group">
+                <label for="card-name">Nombre en la Tarjeta</label>
+                <input type="text" id="card-name" placeholder="Juan Pérez" required />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="expiry">Vencimiento</label>
+                  <input type="text" id="expiry" placeholder="MM/AA" maxlength="5" required />
+                </div>
+                <div class="form-group">
+                  <label for="cvv">CVV</label>
+                  <input type="text" id="cvv" placeholder="123" maxlength="4" required />
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary payment-submit">Pagar</button>
+            </form>
+          </div>
         </div>
-        <div class="summary-total">
-          <p><strong>Subtotal:</strong> <span id="subtotal">$0.00</span></p>
-          <p><strong>Impuestos:</strong> <span id="taxes">$0.00</span></p>
-          <p><strong>Total:</strong> <span id="total" class="total-amount">$0.00</span></p>
+
+        <div class="order-summary">
+          <div class="order-summary__header">
+            <h2>Resumen del Pedido</h2>
+          </div>
+          <div id="order-items">
+          </div>
+          <div class="summary-total">
+            <p><strong>Total:</strong> <span id="total" class="total-amount">$0.00</span></p>
+          </div>
         </div>
       </div>
 
@@ -84,6 +75,7 @@
     <p class="muted">© 2025 GRAM — Vapor</p>
   </footer>
 
+  <script src="../JS/adminNav.js"></script>
   <script src="../JS/metodoPago.js"></script>
 </body>
 </html>

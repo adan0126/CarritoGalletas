@@ -10,8 +10,12 @@
 
   <header class="header">
     <div class="logo">
-      <span class="logo-mark">VAPOR</span>
+      <a href="main.html" style="text-decoration: none;">
+        <span class="logo-mark">VAPOR</span>
+      </a>
     </div>
+    <nav class="nav">
+    </nav>
   </header>
 
   <main class="main">
@@ -27,8 +31,9 @@
       </div>
 
       <div class="profile-actions">
+        <a href="biblioteca.html" class="btn">Biblioteca</a>
+        <a href="./carrito.html" class="btn">Carrito</a>
         <a href="./productos.html" class="btn">Regresar al catálogo</a>
-        <a href="./editarP.html" class="btn">Editar perfil</a>
         <form action="./logout.html" method="post" style="display:inline;">
           <button type="submit" class="btn btn-primary">Cerrar sesión</button>
         </form>
@@ -39,6 +44,7 @@
   <footer class="footer">
     <p class="muted">© 2025 GRAM — Vapor</p>
   </footer>
+  <script src="../JS/adminNav.js"></script>
   <script src="../JS/perfil.js"></script>
 </body>
 </html>

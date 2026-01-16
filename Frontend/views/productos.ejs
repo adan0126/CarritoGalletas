@@ -11,7 +11,9 @@
 
   <header class="header">
     <div class="logo">
-      <span class="logo-mark">Vapor</span>
+      <a href="main.html" style="text-decoration: none;">
+        <span class="logo-mark">VAPOR</span>
+      </a>
     </div>
     <nav class="nav">
       <a href="perfil.html" class="btn">Perfil</a>
@@ -21,23 +23,11 @@
 
   <main class="main">
     <img src="" alt="">
-    <section class="card">
+    <section class="card catalog-card">
       <h1 class="card-title">Catálogo de videojuegos</h1>
       <p class="card-subtitle">Explora y compra tus títulos favoritos</p>
 
       <div class="product-list">
-        <!-- Los productos se cargarán dinámicamente desde Supabase -->
-        <template id="product-template">
-          <div class="product-card">
-            <img src="" alt="" class="product-image" />
-            <h3 class="product-name"></h3>
-            <p class="product-price"></p>
-            <p class="product-stock">
-              Stock: <span class="stock-count"></span> piezas
-            </p>
-            <button class="btn btn-add-cart">Añadir al Carrito</button>
-          </div>
-        </template>
       </div>
     </section>
   </main>
@@ -46,6 +36,7 @@
   <footer class="footer">
     <p class="muted">© 2025 GRAM — Vapor</p>
   </footer>
+  <script src="../JS/adminNav.js"></script>
   <script src="../JS/catalogo.js"></script>
 </body>
 </html>

@@ -1,263 +1,208 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Panel de Administración</title>
-  <link rel="stylesheet" href="../CSS/styles.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="../CSS/styles.css" />
 </head>
+
 <body>
+    <header class="header">
+        <div class="logo">
+            <a href="main.html" style="text-decoration: none;">
+                <span class="logo-mark">VAPOR</span>
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="perfil.html" class="btn">Perfil</a>
+            <a href="logout.html" class="btn btn-danger">Cerrar Sesión</a>
+        </nav>
+    </header>
+    <main class="main">
+        <section class="card admin-panel">
+            <h1 class="card-title">Panel de Administración</h1>
+            <p class="card-subtitle">Gestiona el catálogo de juegos</p>
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="switchTab('games')">Juegos</button>
+                <button class="tab-btn" onclick="switchTab('add-game')">Agregar Juego</button>
+            </div>
+            <div id="games-tab" class="tab-content active">
+                <div class="tab-header">
+                    <h2>Gestionar Juegos</h2>
+                </div>
+                <div class="games-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="games-tbody">
+                            <template id="game-template">
+                                <tr class="game-row">
+                                    <td class="id-cell"><span class="game-id"></span></td>
+                                    <td class="img-cell">
+                                        <img src="" alt="" class="game-thumbnail" />
+                                    </td>
+                                    <td class="name-cell"><span class="game-name"></span></td>
+                                    <td class="category-cell"><span class="game-category"></span></td>
+                                    <td class="price-cell"><span class="game-price"></span></td>
+                                    <td class="stock-cell"><span class="game-stock"></span></td>
+                                    <td class="description-cell">
+                                        <span class="game-description"></span>
+                                    </td>
+                                    <td class="actions-cell">
+                                        <button class="btn btn-sm btn-edit" title="Editar juego">✏️ Editar</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
 
-  <header class="header">
-    <div class="logo">
-      <span class="logo-mark">Vapor Admin</span>
+
+                    <div id="empty-games" class="empty-state" style="display: none;">
+                        <p class="muted">No hay juegos registrados.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="add-game-tab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Agregar Nuevo Juego</h2>
+                </div>
+
+                <form id="add-game-form" class="admin-form">
+                    <div class="form-section">
+                        <h3>Información del Juego</h3>
+
+                        <div class="form-group">
+                            <label for="game-name">Nombre del Juego</label>
+                            <input type="text" id="game-name" placeholder="Ingresa el nombre" required />
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="game-category">Genre</label>
+                                <select id="game-category" required>
+                                    <option value="">-- Select --</option>
+                                    <option value="Action">Action</option>
+                                    <option value="Adventure">Adventure</option>
+                                    <option value="RPG">RPG</option>
+                                    <option value="Strategy">Strategy</option>
+                                    <option value="Platformer">Platformer</option>
+                                    <option value="Racing">Racing</option>
+                                    <option value="Simulation">Simulation</option>
+                                    <option value="Shooter">Shooter</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="game-price">Precio</label>
+                                <input type="number" id="game-price" placeholder="0.00" step="0.01" min="0" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="game-stock">Stock</label>
+                                <input type="number" id="game-stock" placeholder="0" min="0" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="game-classification">Clasificación</label>
+                            <select id="game-classification" required>
+                                <option value="">-- Select --</option>
+                                <option value="E">E</option>
+                                <option value="T">T</option>
+                                <option value="M">M</option>
+                                <option value="AO">AO</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="game-company">Empresa</label>
+                            <input type="text" id="game-company" placeholder="Desarrollador/Publicador" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="game-img">URL de Imagen</label>
+                            <input type="url" id="game-img" placeholder="https://example.com/image.jpg" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="game-description">Descripción</label>
+                            <textarea id="game-description" placeholder="Ingresa la descripción del juego" rows="4" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Agregar Juego</button>
+                        <button type="reset" class="btn btn-secondary">Limpiar Formulario</button>
+                    </div>
+                </form>
+            </div>
+
+
+
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p class="muted">© 2025 GRAM — Vapor Admin</p>
+    </footer>
+
+    <div id="edit-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Juego</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="edit-game-form" class="admin-form">
+                <input type="hidden" id="edit-game-id" />
+
+                <div class="form-group">
+                    <label for="edit-game-name">Nombre del Juego</label>
+                    <input type="text" id="edit-game-name" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-game-price">Precio</label>
+                    <input type="number" id="edit-game-price" step="0.01" min="0" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-game-stock">Stock</label>
+                    <input type="number" id="edit-game-stock" min="0" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-game-img">URL de Imagen</label>
+                    <input type="url" id="edit-game-img" />
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-game-description">Descripción</label>
+                    <textarea id="edit-game-description" rows="4" required></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <nav class="nav">
-      <a href="perfil.html" class="btn">Perfil</a>
-      <a href="logout.html" class="btn btn-danger">Cerrar Sesión</a>
-    </nav>
-  </header>
 
-  <main class="main">
-    <section class="card admin-panel">
-      <h1 class="card-title">Panel de Administración</h1>
-      <p class="card-subtitle">Gestiona el catálogo de juegos</p>
-
-      <!-- Tabs de Navegación -->
-      <div class="admin-tabs">
-        <button class="tab-btn active" onclick="switchTab('games')">Juegos</button>
-        <button class="tab-btn" onclick="switchTab('add-game')">Agregar Juego</button>
-      </div>
-
-      <!-- Tab: Gestionar Juegos -->
-      <div id="games-tab" class="tab-content active">
-        <div class="tab-header">
-          <h2>Gestionar Juegos</h2>
-          <div class="search-bar">
-            <input 
-              type="text" 
-              id="search-game" 
-              placeholder="Buscar juego..." 
-              class="search-input"
-            />
-            <select id="filter-category" class="filter-select">
-              <option value="">Todas las Categorías</option>
-              <option value="accion">Acción</option>
-              <option value="aventura">Aventura</option>
-              <option value="rpg">RPG</option>
-              <option value="estrategia">Estrategia</option>
-              <option value="deportes">Deportes</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Tabla de Juegos -->
-        <div class="games-table-container">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Descripción</th>
-                <th>Fecha de Creación</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="games-tbody">
-              <!-- Los juegos se cargarán dinámicamente desde Supabase -->
-              <template id="game-template">
-                <tr class="game-row">
-                  <td class="id-cell"><span class="game-id"></span></td>
-                  <td class="img-cell">
-                    <img src="" alt="" class="game-thumbnail" />
-                  </td>
-                  <td class="name-cell"><span class="game-name"></span></td>
-                  <td class="category-cell"><span class="game-category"></span></td>
-                  <td class="price-cell"><span class="game-price"></span></td>
-                  <td class="stock-cell"><span class="game-stock"></span></td>
-                  <td class="description-cell">
-                    <span class="game-description"></span>
-                  </td>
-                  <td class="date-cell"><span class="game-date"></span></td>
-                  <td class="actions-cell">
-                    <button class="btn btn-sm btn-edit" title="Editar juego">✏️ Editar</button>
-                    <button class="btn btn-sm btn-delete" title="Eliminar juego">🗑️ Eliminar</button>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-
-          <!-- Mensaje cuando no hay juegos -->
-          <div id="empty-games" class="empty-state" style="display: none;">
-            <p class="muted">No hay juegos registrados.</p>
-          </div>
-        </div>
-
-        <!-- Paginación -->
-        <div class="pagination">
-          <button class="btn btn-sm" id="prev-page">Anterior</button>
-          <span class="page-info" id="page-info">Página 1</span>
-          <button class="btn btn-sm" id="next-page">Siguiente</button>
-        </div>
-      </div>
-
-      <!-- Tab: Agregar Nuevo Juego -->
-      <div id="add-game-tab" class="tab-content">
-        <div class="tab-header">
-          <h2>Agregar Nuevo Juego</h2>
-        </div>
-
-        <form id="add-game-form" class="admin-form">
-          <div class="form-section">
-            <h3>Información Básica</h3>
-
-            <div class="form-group">
-              <label for="game-name">Nombre del Juego *</label>
-              <input type="text" id="game-name" placeholder="Ingresa el nombre del juego" required />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="game-category">Categoría *</label>
-                <select id="game-category" required>
-                  <option value="">-- Selecciona --</option>
-                  <option value="accion">Acción</option>
-                  <option value="aventura">Aventura</option>
-                  <option value="rpg">RPG</option>
-                  <option value="estrategia">Estrategia</option>
-                  <option value="deportes">Deportes</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="game-price">Precio ($) *</label>
-                <input type="number" id="game-price" placeholder="0.00" step="0.01" required />
-              </div>
-
-              <div class="form-group">
-                <label for="game-stock">Stock (Piezas) *</label>
-                <input type="number" id="game-stock" placeholder="0" min="0" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="game-description">Descripción *</label>
-              <textarea 
-                id="game-description" 
-                placeholder="Ingresa la descripción del juego" 
-                rows="4" 
-                required
-              ></textarea>
-            </div>
-          </div>
-
-
-
-          <div class="form-section">
-            <h3>Detalles Adicionales</h3>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="game-developer">Desarrollador *</label>
-                <input type="text" id="game-developer" placeholder="Nombre del desarrollador" required />
-              </div>
-
-              <div class="form-group">
-                <label for="game-publisher">Publicador *</label>
-                <input type="text" id="game-publisher" placeholder="Nombre del publicador" required />
-              </div>
-
-              <div class="form-group">
-                <label for="game-release-date">Fecha de Lanzamiento *</label>
-                <input type="date" id="game-release-date" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="game-rating">Calificación (1-10)</label>
-              <input type="number" id="game-rating" placeholder="5.0" min="1" max="10" step="0.1" />
-            </div>
-
-            <div class="form-group checkbox-group">
-              <label>
-                <input type="checkbox" id="game-featured" />
-                Destacar este juego
-              </label>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Agregar Juego</button>
-            <button type="reset" class="btn btn-secondary">Limpiar Formulario</button>
-          </div>
-        </form>
-      </div>
-
-
-
-    </section>
-  </main>
-
-  <footer class="footer">
-    <p class="muted">© 2025 GRAM — Vapor Admin</p>
-  </footer>
-
-  <!-- Modal para Editar Juego -->
-  <div id="edit-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Editar Juego</h2>
-        <button class="close-btn" onclick="closeModal()">&times;</button>
-      </div>
-      <form id="edit-game-form" class="admin-form">
-        <input type="hidden" id="edit-game-id" />
-        
-        <div class="form-group">
-          <label for="edit-game-name">Nombre del Juego</label>
-          <input type="text" id="edit-game-name" required />
-        </div>
-
-        <div class="form-group">
-          <label for="edit-game-price">Precio</label>
-          <input type="number" id="edit-game-price" step="0.01" required />
-        </div>
-
-        <div class="form-group">
-          <label for="edit-game-stock">Stock</label>
-          <input type="number" id="edit-game-stock" min="0" required />
-        </div>
-
-        <div class="form-group">
-          <label for="edit-game-description">Descripción</label>
-          <textarea id="edit-game-description" rows="4" required></textarea>
-        </div>
-
-        <div class="modal-actions">
-          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal para Confirmar Eliminación -->
-  <div id="delete-modal" class="modal" style="display: none;">
-    <div class="modal-content modal-confirm">
-      <h2>Confirmar Eliminación</h2>
-      <p>¿Estás seguro de que deseas eliminar este juego?</p>
-      <p class="delete-game-name"></p>
-      <div class="modal-actions">
-        <button class="btn btn-danger" onclick="confirmDelete()">Sí, Eliminar</button>
-        <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="../JS/admin.js"></script>
+    <script src="../JS/adminNav.js"></script>
+    <script src="../JS/admin.js"></script>
 </body>
+
 </html>

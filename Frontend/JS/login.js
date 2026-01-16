@@ -25,78 +25,26 @@ document.addEventListener("DOMContentLoaded", () => {
     return regex.test(email);
   }
 
-//__________________________________________________________________________
-// FUNCIÓN PARA DETECTAR CARACTERES PELIGROSOS (SQL Injection)
-  function tieneCaracteresPeligrosos(texto) {
-    const patronesPeligrosos = [
-      /['"`;\\]/g,  // Caracteres especiales peligrosos
-      /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|OR|AND)\b)/gi,  // Palabras clave SQL
-      /(--|\/\*|\*\/|;)/g  // Comentarios SQL
-    ];
-    
-    return patronesPeligrosos.some(patron => patron.test(texto));
-  }
-
-  // VALIDACIÓN EN TIEMPO REAL
-  emailInput.addEventListener("input", () => {
-    const email = emailInput.value.trim();
-    if (email.length > 254) {
-      mostrarError(emailInput, "Máximo 254 caracteres");
-      emailInput.value = email.substring(0, 254);
-    } else if (tieneCaracteresPeligrosos(email)) {
-      mostrarError(emailInput, "Caracteres no permitidos en el email");
-    } else {
-      limpiarError(emailInput);
-    }
-  });
-
-  passwordInput.addEventListener("input", () => {
-    const password = passwordInput.value;
-    if (password.length > 10) {
-      mostrarError(passwordInput, "Máximo 10 caracteres");
-      passwordInput.value = password.substring(0, 10);
-    } else if (tieneCaracteresPeligrosos(password)) {
-      mostrarError(passwordInput, "Caracteres no permitidos en la contraseña");
-    } else {
-      limpiarError(passwordInput);
-    }
-  });
-
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
     let valido = true;
 
-    // VALIDACIÓN EMAIL
-    const email = emailInput.value.trim();
-    if (!email) {
+    if (!emailInput.value.trim()) {
       mostrarError(emailInput, "El correo es obligatorio");
       valido = false;
-    } else if (email.length > 254) {
-      mostrarError(emailInput, "Máximo 254 caracteres");
-      valido = false;
-    } else if (!validarEmail(email)) {
+    } else if (!validarEmail(emailInput.value.trim())) {
       mostrarError(emailInput, "Formato de correo inválido");
-      valido = false;
-    } else if (tieneCaracteresPeligrosos(email)) {
-      mostrarError(emailInput, "El email contiene caracteres peligrosos");
       valido = false;
     } else {
       limpiarError(emailInput);
     }
 
-    // VALIDACIÓN CONTRASEÑA
-    const password = passwordInput.value;
-    if (!password) {
+    if (!passwordInput.value.trim()) {
       mostrarError(passwordInput, "La contraseña es obligatoria");
       valido = false;
-    } else if (password.length < 8) {
+    } else if (passwordInput.value.length < 8) {
       mostrarError(passwordInput, "Debe tener al menos 8 caracteres");
-      valido = false;
-    } else if (password.length > 10) {
-      mostrarError(passwordInput, "Máximo 10 caracteres");
-      valido = false;
-    } else if (tieneCaracteresPeligrosos(password)) {
-      mostrarError(passwordInput, "La contraseña contiene caracteres peligrosos");
       valido = false;
     } else {
       limpiarError(passwordInput);
@@ -104,10 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!valido) return;
 
-    // LIMPIAR CARACTERES PELIGROSOS ANTES DE ENVIAR
-    const emailLimpio = email.replace(/['"`;\\]/g, '');
-    const passwordLimpia = password.replace(/['"`;\\]/g, '');
-//__________________________________________________________________________
     try {
       const response = await fetch("/login", {
         method: "POST",
@@ -124,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("usuario", JSON.stringify({
           id: data.id,
           email: data.email,
+          usr_type: data.usr_type || 0,
           nombre: data.email.split("@")[0] // Usar la parte del email como nombre
         }));
         window.location.href = "productos.html";

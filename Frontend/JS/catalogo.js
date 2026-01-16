@@ -1,5 +1,22 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+  let cartGameIds = new Set();
+
+  // Cargar IDs de juegos en el carrito
+  async function cargarCartGameIds() {
+    if (!usuario || !usuario.id) return;
+    try {
+      const resp = await fetch(`/api/cart?userId=${encodeURIComponent(usuario.id)}`);
+      const data = await resp.json();
+      const items = (data && data.items) || [];
+      cartGameIds = new Set(items.map(it => it.game_id));
+    } catch (e) {
+      console.error('Error cargando carrito:', e);
+    }
+  }
+
   // Cargar productos desde el servidor
+  await cargarCartGameIds();
   await cargarProductos();
 
   function obtenerCarrito() {
@@ -10,17 +27,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     localStorage.setItem("carrito", JSON.stringify(carrito));
   }
 
-  function agregarAlCarrito(nombre, precio, img) {
-    const carrito = obtenerCarrito();
-    carrito.push({ nombre, precio, img });
-    guardarCarrito(carrito);
-    // SIN alert aquí
+  async function agregarAlCarrito(product) {
+    if (!usuario || !usuario.id) {
+      alert('Debes iniciar sesión para agregar al carrito.');
+      return;
+    }
+
+    const productId = product.id || product.prod_id;
+    if (!productId) {
+      alert('No se pudo identificar el producto.');
+      return;
+    }
+    if ((product.prod_stock ?? product.stock ?? 0) <= 0) {
+      alert('Este producto no tiene stock disponible.');
+      return;
+    }
+
+    try {
+      const resp = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: usuario.id, productId, quantity: 1 })
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        alert(data.message || 'No se pudo agregar al carrito');
+        return;
+      }
+      alert(`${product.prod_name || product.name} fue agregado al carrito.`);
+      cartGameIds.add(productId);
+      actualizarBotones();
+    } catch (e) {
+      console.error('Error agregando al carrito:', e);
+      alert('No se pudo agregar al carrito.');
+    }
   }
 
-  function comprarProducto(nombre, precio, img) {
-    agregarAlCarrito(nombre, precio, img);
-    alert(`Añadiste al carrito ${nombre} por ${precio} `); // SOLO UNA alerta
-    window.location.href = "/carrito";
+  function actualizarBotones() {
+    document.querySelectorAll('.product-item').forEach(item => {
+      const btn = item.querySelector('.btn-primary');
+      const productName = item.querySelector('.product-name')?.textContent || '';
+      const gameId = item.dataset.gameId;
+
+      if (gameId && cartGameIds.has(Number(gameId))) {
+        btn.textContent = 'Ya está en el carrito';
+        btn.disabled = true;
+      } else {
+        btn.textContent = 'Agregar al carrito';
+        btn.disabled = false;
+      }
+    });
   }
 
   async function cargarProductos() {
@@ -35,32 +91,44 @@ document.addEventListener("DOMContentLoaded", async () => {
       const productList = document.querySelector(".product-list");
       if (!productList) return;
 
+      // Limpiar productos estáticos
       productList.innerHTML = '';
 
+      // Crear productos dinámicamente (solo los que tienen stock > 0)
       data.products.forEach(product => {
+        // Saltar productos sin stock
+        if (!product.prod_stock || product.prod_stock <= 0) return;
+
         const productItem = document.createElement("div");
         productItem.className = "product-item";
+        productItem.dataset.gameId = product.id;
 
-        // Corregí "carrioto" a "carrito"
+        const btnText = cartGameIds.has(product.id) ? 'Ya está en el carrito' : 'Agregar al carrito';
+        const btnDisabled = cartGameIds.has(product.id) ? 'disabled' : '';
+
         productItem.innerHTML = `
           <img src="${product.prod_img}" alt="${product.prod_name}" class="product-img" />
-          <div class="product-info">
-            <h2 class="product-name">${product.prod_name}</h2>
-            <p class="product-price">$${product.prod_price.toFixed(2)}</p>
-            <p class="product-genres">${product.prod_genres.join(', ')}</p>
-          </div>
-          <div class="product-actions">
-            <button class="btn btn-primary">Añadir al carrito</button>
+          <div class="product-body">
+            <div class="product-info">
+              <h2 class="product-name">${product.prod_name}</h2>
+              <p class="product-price">$${product.prod_price.toFixed(2)}</p>
+              <p class="product-description">${product.prod_description || 'Sin descripción disponible.'}</p>
+              <p class="product-genres">${product.prod_genres.join(', ')}</p>
+              <p class="product-stock">Stock: ${product.prod_stock}</p>
+            </div>
+            <div class="product-actions">
+              <button class="btn btn-primary" ${btnDisabled}>${btnText}</button>
+            </div>
           </div>
         `;
 
         productList.appendChild(productItem);
 
-        const btnComprar = productItem.querySelector(".btn.btn-primary");
-        
-        btnComprar.addEventListener("click", () =>
-          comprarProducto(product.prod_name, `$${product.prod_price.toFixed(2)}`, product.prod_img)
-        );
+        // Agregar event listener al botón
+        const btnCarrito = productItem.querySelector(".btn.btn-primary");
+        if (!cartGameIds.has(product.id)) {
+          btnCarrito.addEventListener("click", () => agregarAlCarrito(product));
+        }
       });
     } catch (error) {
       console.error('Error cargando productos:', error);
