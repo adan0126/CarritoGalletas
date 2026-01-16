@@ -1,0 +1,136 @@
+/* Biblioteca / Historial styles - agregados al final de styles.css */
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.search-input::placeholder {
+  color: #888;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  background: #252525;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.history-table thead {
+  background: var(--panel);
+}
+
+.history-table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 700;
+  border-bottom: 2px solid #444;
+  color: var(--text);
+}
+
+.history-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #333;
+  color: var(--text);
+}
+
+.history-table tbody tr:hover {
+  background: #2a2a2a;
+}
+
+.product-img-cell {
+  width: 60px;
+}
+
+.product-thumbnail {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.purchase-history {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.purchase-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: #252525;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  color: #aaa;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.stat-number,
+.stat-amount,
+.stat-date {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.btn-download,
+.btn-info {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: #ff5555;
+}
+
+.btn-download:hover,
+.btn-info:hover {
+  background: rgba(136, 18, 18, 0.2);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #666;
+  color: #aaa;
+}
+
+.btn-secondary:hover {
+  background: rgba(100, 100, 100, 0.2);
+}

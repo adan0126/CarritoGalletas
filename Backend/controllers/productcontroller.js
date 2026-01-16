@@ -74,7 +74,7 @@ export const login = async (req, res) => {
 	try {
 		const { data: users, error: fetchError } = await supabase
 			.from('users')
-			.select('id, usr_email, usr_password')
+			.select('id, usr_email, usr_password, usr_type')
 			.eq('usr_email', email)
 			.limit(1);
 
@@ -89,8 +89,12 @@ export const login = async (req, res) => {
 			return res.status(401).json({ message: 'Credenciales inválidas.' });
 		}
 
-		// Devolver solo confirmación sin exponer datos
-		return res.json({ id: user.id, email: user.usr_email });
+		// Devolver datos del usuario incluyendo usr_type
+		return res.json({
+			id: user.id,
+			email: user.usr_email,
+			usr_type: user.usr_type || 0
+		});
 	} catch (err) {
 		console.error('Fallo inesperado en /login:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
@@ -125,21 +129,47 @@ export const getProducts = async (req, res) => {
 
 // Endpoint: crear un nuevo producto
 export const create = async (req, res) => {
-	const { categoryid, name, price, stock, img } = req.body;
+	const { prod_name, prod_price, prod_stock, prod_genres, prod_description, prod_classification, prod_company, prod_img } = req.body;
 
-	if (!name || !price) {
+	if (!prod_name || !prod_price) {
 		return res.status(400).json({ message: 'El nombre y precio del producto son requeridos.' });
 	}
 
+	if (prod_price < 0) {
+		return res.status(400).json({ message: 'El precio no puede ser negativo.' });
+	}
+
+	if (prod_stock && prod_stock < 0) {
+		return res.status(400).json({ message: 'El stock no puede ser negativo.' });
+	}
+
 	try {
+		// Obtener el ID más grande actual
+		const { data: maxIdData, error: maxIdError } = await supabase
+			.from('products')
+			.select('id')
+			.order('id', { ascending: false })
+			.limit(1);
+
+		if (maxIdError) {
+			console.error('Error obteniendo ID máximo:', maxIdError);
+			return res.status(500).json({ message: 'No se pudo generar el ID del producto.' });
+		}
+
+		const newId = maxIdData && maxIdData.length > 0 ? maxIdData[0].id + 1 : 1;
+
 		const { data: created, error: insertError } = await supabase
 			.from('products')
 			.insert({
-				categoryid: categoryid || null,
-				name,
-				price,
-				stock: stock || 0,
-				img: img || null
+				id: newId,
+				prod_name,
+				prod_price,
+				prod_stock: prod_stock || 0,
+				prod_genres: prod_genres ? [prod_genres] : null,
+				prod_description: prod_description || null,
+				prod_classification: prod_classification || null,
+				prod_company: prod_company || null,
+				prod_img: prod_img || null
 			})
 			.select()
 			.single();
@@ -152,6 +182,51 @@ export const create = async (req, res) => {
 		return res.status(201).json({ product: created });
 	} catch (err) {
 		console.error('Fallo inesperado en /products:', err);
+		return res.status(500).json({ message: 'Error interno del servidor.' });
+	}
+};
+
+// Endpoint: actualizar un producto
+export const updateProduct = async (req, res) => {
+	const { id } = req.params;
+	const { prod_name, prod_price, prod_stock, prod_description, prod_genres, prod_img } = req.body;
+
+	if (!id) {
+		return res.status(400).json({ message: 'El ID del producto es requerido.' });
+	}
+
+	if (prod_price !== undefined && prod_price < 0) {
+		return res.status(400).json({ message: 'El precio no puede ser negativo.' });
+	}
+
+	if (prod_stock !== undefined && prod_stock < 0) {
+		return res.status(400).json({ message: 'El stock no puede ser negativo.' });
+	}
+
+	try {
+		const updateData = {};
+		if (prod_name !== undefined) updateData.prod_name = prod_name;
+		if (prod_price !== undefined) updateData.prod_price = prod_price;
+		if (prod_stock !== undefined) updateData.prod_stock = prod_stock;
+		if (prod_description !== undefined) updateData.prod_description = prod_description;
+		if (prod_genres !== undefined) updateData.prod_genres = prod_genres;
+		if (prod_img !== undefined) updateData.prod_img = prod_img;
+
+		const { data: updated, error: updateError } = await supabase
+			.from('products')
+			.update(updateData)
+			.eq('id', id)
+			.select()
+			.single();
+
+		if (updateError) {
+			console.error('Error actualizando producto:', updateError);
+			return res.status(500).json({ message: 'No se pudo actualizar el producto.' });
+		}
+
+		return res.json({ product: updated });
+	} catch (err) {
+		console.error('Fallo inesperado en PUT /products:', err);
 		return res.status(500).json({ message: 'Error interno del servidor.' });
 	}
 };
@@ -378,7 +453,49 @@ export const updateCartQuantity = async (req, res) => {
   }
 };
 
-// Pasar el carrito a la biblioteca del usuario
+// Obtener la biblioteca del usuario
+export const getLibrary = async (req, res) => {
+	const userId = req.query.userId || req.body.userId;
+	if (!userId) return res.status(400).json({ message: 'userId es requerido.' });
+
+	try {
+		const { data: libItems, error: libErr } = await supabase
+			.from('library')
+			.select('*')
+			.eq('usr_id', userId)
+			.order('id', { ascending: false });
+
+		if (libErr) {
+			console.error('Error obteniendo biblioteca:', libErr);
+			return res.status(500).json({ message: 'No se pudo obtener la biblioteca.' });
+		}
+
+		const gameIds = (libItems || []).map(it => it.game_id);
+		let productsMap = {};
+		if (gameIds.length > 0) {
+			const { data: products } = await supabase
+				.from('products')
+				.select('id, prod_name, prod_price, prod_img, prod_description')
+				.in('id', gameIds);
+
+			productsMap = (products || []).reduce((acc, p) => {
+				acc[p.id] = p;
+				return acc;
+			}, {});
+		}
+
+		const detailed = (libItems || []).map(it => ({
+			...it,
+			product: productsMap[it.game_id] || null
+		}));
+
+		return res.json({ items: detailed });
+	} catch (err) {
+		console.error('Fallo inesperado en /api/library:', err);
+		return res.status(500).json({ message: 'Error interno del servidor.' });
+	}
+};
+
 export const checkoutLibrary = async (req, res) => {
 	const { userId, items } = req.body;
 	if (!userId || !Array.isArray(items) || items.length === 0) {

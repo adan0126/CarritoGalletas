@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Historial de Compras</title>
+    <title>Biblioteca — Vapor</title>
     <link rel="stylesheet" href="../CSS/styles.css" />
+    <link rel="stylesheet" href="../CSS/biblioteca.css" />
 </head>
 
 <body>
@@ -23,15 +24,13 @@
     </header>
 
     <main class="main">
-        <section class="card">
-            <h1 class="card-title">Historial de Compras</h1>
-            <p class="card-subtitle">Revisa todos tus juegos adquiridos</p>
+        <section class="card library-card">
+            <h1 class="card-title">Biblioteca</h1>
+            <p class="card-subtitle">Tus juegos adquiridos</p>
 
             <div class="filters">
-                <input type="text" id="search-game" placeholder="Buscar juego..." class="search-input" />
                 <select id="sort-by" class="filter-select">
-                    <option value="date-desc">Más recientes primero</option>
-                    <option value="date-asc">Más antiguos primero</option>
+                    <option value="default">Predeterminado</option>
                     <option value="price-desc">Mayor precio</option>
                     <option value="price-asc">Menor precio</option>
                     <option value="name">Orden alfabético</option>
@@ -43,10 +42,8 @@
                         <tr>
                             <th>Imagen</th>
                             <th>Juego</th>
-                            <th>Fecha de Compra</th>
                             <th>Precio</th>
-                            <th>ID de Transacción</th>
-                            <th>Acciones</th>
+                            <th>Cantidad</th>
                         </tr>
                     </thead>
                     <tbody id="history-tbody">
@@ -101,15 +98,6 @@
                 </div>
             </div>
 
-            <div class="action-buttons">
-                <button class="btn btn-secondary" onclick="exportPurchaseHistory()">
-                    Exportar Historial
-                </button>
-                <button class="btn btn-secondary" onclick="printPurchaseHistory()">
-                    Imprimir
-                </button>
-            </div>
-
         </section>
     </main>
 
@@ -117,7 +105,8 @@
         <p class="muted">© 2025 GRAM — Vapor</p>
     </footer>
 
-    <script src="../JS/historialCompras.js"></script>
+    <script src="../JS/adminNav.js"></script>
+    <script src="../JS/biblioteca.js"></script>
 </body>
 
 </html>

@@ -1,5 +1,22 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+  let cartGameIds = new Set();
+
+  // Cargar IDs de juegos en el carrito
+  async function cargarCartGameIds() {
+    if (!usuario || !usuario.id) return;
+    try {
+      const resp = await fetch(`/api/cart?userId=${encodeURIComponent(usuario.id)}`);
+      const data = await resp.json();
+      const items = (data && data.items) || [];
+      cartGameIds = new Set(items.map(it => it.game_id));
+    } catch (e) {
+      console.error('Error cargando carrito:', e);
+    }
+  }
+
   // Cargar productos desde el servidor
+  await cargarCartGameIds();
   await cargarProductos();
 
   function obtenerCarrito() {
@@ -11,7 +28,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function agregarAlCarrito(product) {
-    const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
     if (!usuario || !usuario.id) {
       alert('Debes iniciar sesión para agregar al carrito.');
       return;
@@ -39,10 +55,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
       alert(`${product.prod_name || product.name} fue agregado al carrito.`);
+      cartGameIds.add(productId);
+      actualizarBotones();
     } catch (e) {
       console.error('Error agregando al carrito:', e);
       alert('No se pudo agregar al carrito.');
     }
+  }
+
+  function actualizarBotones() {
+    document.querySelectorAll('.product-item').forEach(item => {
+      const btn = item.querySelector('.btn-primary');
+      const productName = item.querySelector('.product-name')?.textContent || '';
+      const gameId = item.dataset.gameId;
+
+      if (gameId && cartGameIds.has(Number(gameId))) {
+        btn.textContent = 'Ya está en el carrito';
+        btn.disabled = true;
+      } else {
+        btn.textContent = 'Agregar al carrito';
+        btn.disabled = false;
+      }
+    });
   }
 
   async function cargarProductos() {
@@ -60,10 +94,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Limpiar productos estáticos
       productList.innerHTML = '';
 
-      // Crear productos dinámicamente
+      // Crear productos dinámicamente (solo los que tienen stock > 0)
       data.products.forEach(product => {
+        // Saltar productos sin stock
+        if (!product.prod_stock || product.prod_stock <= 0) return;
+
         const productItem = document.createElement("div");
         productItem.className = "product-item";
+        productItem.dataset.gameId = product.id;
+
+        const btnText = cartGameIds.has(product.id) ? 'Ya está en el carrito' : 'Agregar al carrito';
+        const btnDisabled = cartGameIds.has(product.id) ? 'disabled' : '';
 
         productItem.innerHTML = `
           <img src="${product.prod_img}" alt="${product.prod_name}" class="product-img" />
@@ -76,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               <p class="product-stock">Stock: ${product.prod_stock}</p>
             </div>
             <div class="product-actions">
-              <button class="btn btn-primary">Agregar al carrito</button>
+              <button class="btn btn-primary" ${btnDisabled}>${btnText}</button>
             </div>
           </div>
         `;
@@ -85,7 +126,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Agregar event listener al botón
         const btnCarrito = productItem.querySelector(".btn.btn-primary");
-        btnCarrito.addEventListener("click", () => agregarAlCarrito(product));
+        if (!cartGameIds.has(product.id)) {
+          btnCarrito.addEventListener("click", () => agregarAlCarrito(product));
+        }
       });
     } catch (error) {
       console.error('Error cargando productos:', error);

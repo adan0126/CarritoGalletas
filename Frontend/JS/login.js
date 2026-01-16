@@ -68,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("usuario", JSON.stringify({
           id: data.id,
           email: data.email,
+          usr_type: data.usr_type || 0,
           nombre: data.email.split("@")[0] // Usar la parte del email como nombre
         }));
         window.location.href = "productos.html";
